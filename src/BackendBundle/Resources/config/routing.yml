@@ -1,0 +1,7 @@
+#backend_homepage:
+#    path:     /
+#    defaults: { _controller: BackendBundle:Default:index }
+
+backend_homepage:
+    resource: "@BackendBundle/Resources/config/routing/backend.yml"
+    prefix: /backend

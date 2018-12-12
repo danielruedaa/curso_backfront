@@ -1,0 +1,9 @@
+backend_index:
+    path: /backend/
+    defaults: {_controller: "BackendBundle:Default:index"}
+    methods: GET
+
+backend_pruebas:
+    path: /backend/pruebas
+    defaults: {_controller: "BackendBundle:Default:pruebas"}
+    methods: GET
