@@ -33,3 +33,9 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+
+    # Mi servicio guia
+    AppBundle\Services\Helpers:
+        public: true
+        arguments:
+            $manager: '@doctrine.orm.entity_manager'
