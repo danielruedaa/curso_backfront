@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Services\JwtAuth;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,17 +28,34 @@ class DefaultController extends Controller
     /**
      *test method whit services to become anything to json
      */
-    public function pruebasAction()
+    public function pruebasAction(Request $request)
     {
-        $em=$this->getDoctrine()->getManager();
-        $userRepo= $em->getRepository('BackendBundle:User');
-        $user= $userRepo->findAll();
-
+        //recibimos el dato del login
         $helpers = $this->get(Helpers::class);
-        return $helpers->json(array(
-                                    'status' => 'succes',
-                                    'users'=>$user,
-        ));
+        $jwt_auth =  $this->get(JwtAuth::class);
+        $token = $request->get("authorization",null);
+            // if token is true, return all user
+        if($token && $jwt_auth->checkToken($token)==true){
+            // request to db
+            $em=$this->getDoctrine()->getManager();
+            $userRepo= $em->getRepository('BackendBundle:User');
+            $user= $userRepo->findAll();
+
+
+            return $helpers->json(array(
+                'status' => 'succes',
+                'users'=>$user,
+            ));
+        }else{
+            return $helpers->json(array(
+                'status' => 'error',
+                'code'=> '400',
+                'users'=>'Authotization not valid!',
+            ));
+
+        }
+
+
     }
 
     /**
@@ -61,16 +79,36 @@ class DefaultController extends Controller
             $params = json_decode($json);
             $email=(isset($params->email)) ? $params->email: null;//si existe la propidedad
             $password=(isset($params->password)) ? $params->password : null;//si existe la propidedad
+            $getHash=(isset($params->getHash)) ? $params->getHash : null;//si existe la propidedad
             //validacion con symfony
             $emailConstrain = new Assert\Email();
             $emailConstrain->message="This email is not valid";
             $validate_email = $this->get("validator")->validate($email,$emailConstrain);
 
+            // encrypte password
+            $pwd = hash('sha256',$password);
+
 
                 if(count($validate_email)== 0 && $password != null){
+                    //call services validation email and pass
+                    $jwt_auth =$this->get(JwtAuth::class);
+                    //send data and get reply
+
+                    if($getHash == null || $getHash == false){
+                        $singup=$jwt_auth->singup($email,$pwd);
+
+                    }else{
+
+                        $singup = $jwt_auth->singup($email,$pwd, true);
+                    }
+
+
+
+
                     $data=array(
                         'status' => 'succes',
-                        'data'   =>'login'
+                        'data'   =>'login',
+                        'singup'=>$singup
                     );
 
                 }else{
@@ -89,6 +127,6 @@ class DefaultController extends Controller
 
         }
 
-        return $helpers->json($data);
+        return $this->json($singup);
     }
 }

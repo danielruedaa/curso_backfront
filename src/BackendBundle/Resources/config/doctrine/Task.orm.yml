@@ -49,7 +49,7 @@ BackendBundle\Entity\Task:
             column: updated_at
     manyToOne:
         user:
-            targetEntity: Users
+            targetEntity: User
             cascade: {  }
             fetch: LAZY
             mappedBy: null
