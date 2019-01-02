@@ -1,7 +1,19 @@
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-
+/**
+ * extra code
+ * url https://victorroblesweb.es/2017/04/23/cabeceras-http-php-permitir-acceso-cors/
+ * cabeceras http CORS
+ */
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+$method = $_SERVER['REQUEST_METHOD'];
+if($method == "OPTIONS") {
+    die();
+}
 /** @var \Composer\Autoload\ClassLoader $loader */
 $loader = require __DIR__.'/../vendor/autoload.php';
 if (PHP_VERSION_ID < 70000) {
